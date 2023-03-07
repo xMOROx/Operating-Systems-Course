@@ -1,3 +1,27 @@
+#ifdef O
+#define PATH "libwcCountDynamic_O.so"
+#endif
+
+#ifdef O1
+#define PATH "libwcCountDynamic_O1.so"
+#endif
+
+#ifdef O2
+#define PATH "libwcCountDynamic_O2.so"
+#endif
+
+#ifdef O3
+#define PATH "libwcCountDynamic_O3.so"
+#endif
+
+#ifdef Os
+#define PATH "libwcCountDynamic_Os.so"
+#endif
+
+#if !defined(O) && !defined(O1) && !defined(O2) && !defined(O3) && !defined(Os)
+#define PATH "../zad1/libwcCountDynamic.so"
+#endif
+
 #include "../zad1/wcCount.h"
 #include <bits/time.h>
 #include <dlfcn.h>
@@ -213,7 +237,7 @@ int main() {
   struct timespec start, end;
   struct tms tmsStart, tmsEnd;
 
-  void *handle = dlopen("../zad1/libwcCountDynamic.so", RTLD_LAZY);
+  void *handle = dlopen(PATH, RTLD_LAZY);
 
   if (!handle) {
     printf("Error: %s \n", dlerror());
