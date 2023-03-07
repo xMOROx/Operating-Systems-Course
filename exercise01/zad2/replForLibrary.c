@@ -1,5 +1,6 @@
 #include "../zad1/wcCount.h"
 #include <bits/time.h>
+#include <ctype.h>
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -28,6 +29,38 @@ _Bool errorOccured = 0;
 volatile sig_atomic_t flag = 0;
 
 void handler(int signum) { flag = 1; }
+
+int strToInt(const char *str) {
+  int num = 0;
+  int sign = 1;
+  int decimal = 0;
+  const char *p = str;
+  if (*p == '-') {
+    sign = -1;
+    ++p;
+  }
+
+  while (*p != '\0') {
+    if (isdigit(*p)) {
+      if (decimal) {
+        // decimal point already found
+        return -1;
+      }
+      num = num * 10 + (*p - '0');
+    } else if (*p == '.') {
+      if (decimal) {
+        // more than one decimal point
+        return -1;
+      }
+      decimal = 1;
+    } else {
+      // non-digit character
+      return -1;
+    }
+    ++p;
+  }
+  return num * sign;
+}
 
 void print_timespec(struct timespec start, struct timespec end,
                     struct tms tmsStart, struct tms tmsEnd) {
@@ -70,13 +103,16 @@ void inputParser(char *input, char **command, char **argument,
       return;
     }
 
-    size = atoi(*argument);
+    size = strToInt(*argument);
 
     if (size <= 0) {
       printf("%sREPL ERROR >>> Invalid size \n", RED);
       errorOccured = 1;
       return;
     }
+
+    printf("%sREPL OUTPUT >>> Initializing structure with size %d \n", GREEN,
+           size);
 
     *blocks = createBlock(size);
     initialized = 1;
