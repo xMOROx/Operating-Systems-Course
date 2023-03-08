@@ -3,7 +3,7 @@ FILE_2=../zad2/replForLibraryDynamic.c
 FILE_3=../zad1/wcCount
 
 
-all: compilePrograms test
+all: compilePrograms
 
 compilePrograms: 
 	make -C ../zad2 all 
