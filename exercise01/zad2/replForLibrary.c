@@ -157,7 +157,7 @@ void inputParser(char *input, char **command, char **argument,
     return;
 
   } else if (strcmp(*command, SHOW_COMMAND) == 0) {
-    index = atoi(*argument);
+    index = strToInt(*argument);
 
     if (index < 0 || index >= (*blocks)->maxBlocks) {
       printf("%sREPL ERROR >>> Invalid index \n", RED);
@@ -191,7 +191,7 @@ void inputParser(char *input, char **command, char **argument,
       return;
     }
 
-    index = atoi(*argument);
+    index = strToInt(*argument);
 
     if (index < 0 || index >= (*blocks)->maxBlocks) {
       printf("%sREPL ERROR >>> Invalid index \n", RED);
