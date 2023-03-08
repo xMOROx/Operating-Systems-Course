@@ -18,10 +18,16 @@
 #define EXIT_COMMAND "exit"
 
 // colors
-#define RED "\x1b[31m"
-#define GREEN "\x1b[32m"
-#define DEFAULT "\x1b[0m"
-#define BLUE "\x1b[34m"
+// #define RED "\x1b[31m"
+// #define GREEN "\x1b[32m"
+// #define DEFAULT "\x1b[0m"
+// #define BLUE "\x1b[34m"
+
+// w celach raportu zmieniam kolory na puste stringi
+#define RED ""
+#define GREEN ""
+#define DEFAULT ""
+#define BLUE ""
 
 _Bool initialized = 0;
 _Bool errorOccured = 0;
