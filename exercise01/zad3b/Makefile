@@ -4,6 +4,8 @@ LIBRARY_FOLDER=../zad1
 SOURCE_FOLDER=../zad2
 SOURCE_CODE=replForLibrary
 LIB_PREFIX=libwcCount
+LIBRARYFLAGS=-Wl,-rpath=`pwd`
+
 
 FILE_1=../zad2/replForLibrary.c
 FILE_2=../zad2/replForLibraryDynamic.c
@@ -34,13 +36,13 @@ libwcCountDynamic:wcCountDynamic_$(SUFFIX).o
 	$(CC) -$(SUFFIX) -Wall -shared -fPIC -o $@_$(SUFFIX).so $<
 
 replForLibraryStatic: $(SOURCE_FOLDER)/$(SOURCE_CODE).c $(LIB_PREFIX)Static_$(SUFFIX).a
-	$(CC) -Wall -$(SUFFIX) $< -o $@_$(SUFFIX).exe -L. -lwcCountStatic_$(SUFFIX)
+	$(CC) -Wall -$(SUFFIX) $< -o $@_$(SUFFIX).exe -L. -lwcCountStatic_$(SUFFIX) 
 
 replForLibraryShared: $(SOURCE_FOLDER)/$(SOURCE_CODE).c $(LIB_PREFIX)Dynamic_$(SUFFIX).so
-	$(CC) -Wall -$(SUFFIX) $< -o $@_$(SUFFIX).exe -L. -lwcCountDynamic_$(SUFFIX)
+	$(CC) -Wall -$(SUFFIX) $< -o $@_$(SUFFIX).exe -L. -lwcCountDynamic_$(SUFFIX) $(LIBRARYFLAGS)
 
 replForLibraryDynamic: $(SOURCE_FOLDER)/$(SOURCE_CODE)Dynamic.c $(LIB_PREFIX)Dynamic_$(SUFFIX).so
-	$(CC) -Wall -$(SUFFIX) $< -o $@_$(SUFFIX).exe -D $(SUFFIX)
+	$(CC) -Wall -$(SUFFIX) $< -o $@_$(SUFFIX).exe -D $(SUFFIX) $(LIBRARYFLAGS)
 
 test: 
 	make allTest SUFFIX=O
