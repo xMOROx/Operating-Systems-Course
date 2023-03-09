@@ -12,7 +12,7 @@ replForLibraryStatic.exe: replForLibrary.c $(LIBRARY_FOLDER)/libwcCountStatic.a
 	$(CC) $(CFLAGS) $< -o $@ -L$(LIBRARY_FOLDER) -lwcCountStatic
 
 replForLibraryShared.exe: replForLibrary.c $(LIBRARY_FOLDER)/libwcCountDynamic.so
-	$(CC) $(CFLAGS) $< -o $@ -L$(LIBRARY_FOLDER) -lwcCountDynamic $(LIBRARYFLAGS)
+	$(CC) $(CFLAGS) $< -o $@ -L. -lwcCountDynamic $(LIBRARYFLAGS)
 
 replForLibraryDynamic.exe: replForLibraryDynamic.c $(LIBRARY_FOLDER)/libwcCountDynamic.so
 	$(CC) $(CFLAGS) $< -o $@ $(LIBRARYFLAGS)
