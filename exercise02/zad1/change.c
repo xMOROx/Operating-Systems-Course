@@ -1,4 +1,5 @@
 #include "change.h"
+#include <bits/time.h>
 #include <ctype.h>
 #include <errno.h>
 #include <fcntl.h>
@@ -7,6 +8,7 @@
 #include <string.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <time.h>
 #include <unistd.h>
 
 int _; // to avoid unused variable warning
@@ -188,6 +190,9 @@ int main(int argc, char *argv[]) {
   if (check != 0) {
     return check;
   }
+  struct timespec start, end;
+
+  clock_gettime(CLOCK_REALTIME, &start);
   struct Arguments arguments = {
       .old_char = argv[1][0],
       .new_char = argv[2][0],
@@ -200,6 +205,10 @@ int main(int argc, char *argv[]) {
   if (_change) {
     return _change;
   }
+  clock_gettime(CLOCK_REALTIME, &end);
 
-  return 1;
+  printf("Execution time: %ld ns \n", (end.tv_sec - start.tv_sec) * 1000000000 +
+                                          (end.tv_nsec - start.tv_nsec));
+
+  return 0;
 }
