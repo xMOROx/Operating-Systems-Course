@@ -3,6 +3,7 @@
 #include <ctype.h>
 #include <errno.h>
 #include <fcntl.h>
+#include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -15,26 +16,34 @@ int _; // to avoid unused variable warning
 
 int check_arguments(int argc, char *argv[]) {
   if (argc != 5) {
-    fputs("[Changing] Wrong number of arguments. You need to pass 5!", stderr);
+    fprintf(stderr,
+            "[Changing] Wrong number of arguments. You need to pass 5 \n");
     return WRONG_ARGUMENTS_NUMBER;
   }
 
   if (!isascii((int)(*argv[1]))) {
-    fputs("[Changing] Wrong first argument. You need to pass a letter!",
-          stderr);
+    fprintf(
+        stderr,
+        "[Changing] Wrong first argument. You need to pass a letter! \n %s \n",
+        strerror(errno));
     return WRONG_FIRST_CHAR;
   }
 
   if (!isascii((int)(*argv[2]))) {
-    fputs("[Changing] Wrong second argument. You need to pass a letter!",
-          stderr);
+    fprintf(
+        stderr,
+        "[Changing] Wrong second argument. You need to pass a letter! \n %s \n",
+        strerror(errno));
     return WRONG_SECOND_CHAR;
   }
 
   //   check if the 3 argument is a file
 
   if (access(argv[3], F_OK)) {
-    fputs("[Changing] Wrong third argument. You need to pass a file!", stderr);
+    fprintf(
+        stderr,
+        "[Changing] Wrong third argument. You need to pass a file! \n %s \n",
+        strerror(errno));
     return SOURCE_FILE_NOT_FOUND;
   }
 
@@ -84,23 +93,24 @@ int Universal_open_file(union Universal_File *file, char *file_name) {
   return 0;
 }
 
-int Universal_read_file(union Universal_File *file, char **buffer) {
+int Universal_read_file(union Universal_File *file, char **buffer,
+                        size_t size) {
 #ifdef SYS
-  _ = read(file->file_sys, *buffer, BLOCK_SIZE);
+  return read(file->file_sys, *buffer, size);
 #else
-  _ = fread(*buffer, sizeof(char), BLOCK_SIZE, file->file_lib);
+  return fread(*buffer, sizeof(char), size, file->file_lib);
 #endif
-  return 0;
 }
 
 int Universal_create_file(union Universal_File *file, char *file_name) {
-#ifdef SYS
   if (!access(file_name, F_OK)) {
     fprintf(stderr, "[Changing] Error destination file exists!: %s",
             strerror(errno));
-    perror("access");
+    perror("Error destination file exists");
     return DESTINATION_FILE_NOT_CREATE;
   }
+
+#ifdef SYS
 
   file->file_sys = creat(file_name, 0666);
   if (file->file_sys == -1) {
@@ -109,13 +119,6 @@ int Universal_create_file(union Universal_File *file, char *file_name) {
     return DESTINATION_FILE_NOT_CREATE;
   }
 #else
-
-  if (!access(file_name, F_OK)) {
-    fprintf(stderr, "[Changing] Error destination file exists!: %s",
-            strerror(errno));
-    perror("access");
-    return DESTINATION_FILE_NOT_CREATE;
-  }
 
   file->file_lib = fopen(file_name, "w");
 
@@ -137,6 +140,14 @@ int Universal_close_file(union Universal_File *file) {
   _ = close(file->file_sys);
 #else
   _ = fclose(file->file_lib);
+#endif
+  return 0;
+}
+int Universal_seek_file(union Universal_File *file, int offset) {
+#ifdef SYS
+  _ = lseek(file->file_sys, offset, SEEK_SET);
+#else
+  _ = fseek(file->file_lib, offset, SEEK_SET);
 #endif
   return 0;
 }
@@ -167,11 +178,12 @@ int change(struct Arguments *arguments) {
 
   int size = get_size_of_file(source_file);
 
-  int count_blocks = size / BLOCK_SIZE;
-
+  size_t count_blocks = size / ((size_t)BLOCK_SIZE);
+  size_t end = 0;
   for (int i = 0; i < count_blocks; i++) {
-    _ = Universal_read_file(source_file, &buffer);
+    end = Universal_read_file(source_file, &buffer, BLOCK_SIZE);
     change_char_in_buffer(&buffer, old_char, new_char);
+    buffer[end] = 0;
     _ = Universal_write_file(destination_file, buffer);
   }
 

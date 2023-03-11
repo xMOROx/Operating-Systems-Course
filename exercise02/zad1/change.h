@@ -1,11 +1,6 @@
 #include <stdio.h>
 
-#ifdef BLOCK
-#define BLOCK_SIZE 1024 // 1kB
-#else
 #define BLOCK_SIZE 1
-#endif
-
 enum Errors {
   WRONG_ARGUMENTS = -1,
   WRONG_ARGUMENTS_NUMBER = -2,
@@ -37,6 +32,6 @@ int check_arguments(int argc, char *argv[]);
 int get_size_of_file(union Universal_File *file);
 int Universal_open_file(union Universal_File *file, char *file_name);
 int Universal_create_file(union Universal_File *file, char *file_name);
-int Universal_read_file(union Universal_File *file, char **buffer);
+int Universal_read_file(union Universal_File *file, char **buffer, size_t size);
 int Universal_write_file(union Universal_File *file, char *buffer);
 int Universal_close_file(union Universal_File *file);
