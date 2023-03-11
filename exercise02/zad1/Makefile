@@ -7,7 +7,7 @@ SYS=SYS
 LIB=LIB
 FILE_TXT_NAME=pomiar
 
-all: build
+all: report
 
 build: $(NAME).c $(NAME).h
 	make $(NAME) SUFFIX_1=$(BAJT) SUFFIX_2=$(SYS)
@@ -34,4 +34,4 @@ report: clean build reportBuild
 	ls -r | grep -i .txt | xargs bash -c 'echo $$@' | xargs bash -c 'rm -f $$@'
 	rm -f tmp.txt
 clean: 
-	rm -f *.exe $(NAME).o *.txt *.in
+	rm -f *.exe *.txt *.in

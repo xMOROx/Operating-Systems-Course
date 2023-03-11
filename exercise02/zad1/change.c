@@ -152,6 +152,19 @@ int Universal_seek_file(union Universal_File *file, int offset) {
   return 0;
 }
 
+struct timespec timespec_diff(struct timespec start, struct timespec end) {
+  struct timespec out;
+
+  if ((end.tv_nsec - start.tv_nsec) < 0) {
+    out.tv_sec = end.tv_sec - start.tv_sec - 1;
+    out.tv_nsec = 1000000000 + end.tv_nsec - start.tv_nsec;
+  } else {
+    out.tv_sec = end.tv_sec - start.tv_sec;
+    out.tv_nsec = end.tv_nsec - start.tv_nsec;
+  }
+  return out;
+}
+
 int change(struct Arguments *arguments) {
   char *buffer = (char *)calloc(BLOCK_SIZE, sizeof(char));
 
@@ -218,9 +231,9 @@ int main(int argc, char *argv[]) {
     return _change;
   }
   clock_gettime(CLOCK_REALTIME, &end);
-
-  printf("Execution time: %ld ns \n", (end.tv_sec - start.tv_sec) * 1000000000 +
-                                          (end.tv_nsec - start.tv_nsec));
+  // print time with s and ns
+  struct timespec normalized = timespec_diff(start, end);
+  printf("Time: %lds %ldns \n", normalized.tv_sec, normalized.tv_nsec);
 
   return 0;
 }
