@@ -1,6 +1,6 @@
 SHELL := /bin/bash
 CC=gcc
-GFLAGS= -Wall -O3
+CFLAGS= -Wall -O3
 NAME=change
 BAJT=BAJT
 SYS=SYS
@@ -14,7 +14,7 @@ build: $(NAME).c $(NAME).h
 	make $(NAME) SUFFIX_1=$(BAJT) SUFFIX_2=$(LIB)
 
 $(NAME): $(NAME).c $(NAME).h
-	$(CC) $(GFLAGS) -o $@_$(SUFFIX_1)_$(SUFFIX_2).exe $< -D $(SUFFIX_1) -D $(SUFFIX_2) 
+	$(CC) $(CFLAGS) -o $@_$(SUFFIX_1)_$(SUFFIX_2).exe $< -D $(SUFFIX_1) -D $(SUFFIX_2) 
 
 reportTestPerformance: $(NAME)_$(SUFFIX_1)_$(SUFFIX_2).exe 
 	head -c 1048576 </dev/urandom >test.in

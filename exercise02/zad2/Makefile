@@ -1,5 +1,6 @@
+SHELL := /bin/bash
 CC=gcc 
-GFLAGS= -Wall -O3
+CFLAGS= -Wall -O3
 NAME=reverse
 SIZE_1=1
 SIZE_2=1024
@@ -8,8 +9,8 @@ EXT=.txt
 
 all: report
 build: $(NAME).c $(NAME).h
-	$(CC) $(GFLAGS) -o $(NAME)_$(SIZE_1).exe $(NAME).c -D BLOCK_SIZE=$(SIZE_1)
-	$(CC) $(GFLAGS) -o $(NAME)_$(SIZE_2).exe $(NAME).c -D BLOCK_SIZE=$(SIZE_2)
+	$(CC) $(CFLAGS) -o $(NAME)_$(SIZE_1).exe $(NAME).c -D BLOCK_SIZE=$(SIZE_1)
+	$(CC) $(CFLAGS) -o $(NAME)_$(SIZE_2).exe $(NAME).c -D BLOCK_SIZE=$(SIZE_2)
 
 reportTestPerformance: $(NAME)_$(SIZE_1).exe $(NAME)_$(SIZE_1).exe
 	head -c 1048576 </dev/urandom >test.in
