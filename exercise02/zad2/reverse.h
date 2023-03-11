@@ -21,5 +21,5 @@ int open_file(char *file_name, FILE **file);
 int close_file(FILE *file);
 int reverse_file(char *source_file_name, char *destination_file_name);
 int create_file(char *file_name, FILE **file);
-int reverse_string(char **string);
+char *reverse_string(char *string);
 int copy_file(FILE *file, FILE *new_file);

@@ -1,11 +1,14 @@
 #include "reverse.h"
+#include <bits/time.h>
 #include <ctype.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 #include <unistd.h>
+
 int _; // to avoid unused variable warning
 
 int check_arguments(int argc, char *argv[]) {
@@ -38,17 +41,16 @@ int check_arguments(int argc, char *argv[]) {
   return NO_ERROR;
 }
 
-int reverse_string(char **string) {
-  int length = strlen(*string);
+char *reverse_string(char *string) {
+  int length = strlen(string);
   char *buffer = (char *)malloc(length);
   for (int i = 0; i < length; i++) {
-    buffer[i] = *string[length - i - 1];
+    buffer[i] = string[length - i - 1];
   }
   for (int i = 0; i < length; i++) {
-    *string[i] = buffer[i];
+    string[i] = buffer[i];
   }
-  free(buffer);
-  return NO_ERROR;
+  return buffer;
 }
 
 int open_file(char *file_name, FILE **file) {
@@ -108,7 +110,7 @@ int reverse_file(char *source_file_name, char *destination_file_name) {
   file_size = ftell(source_file);
   _ = fseek(source_file, 0, SEEK_SET);
 
-  char *buffer = (char *)malloc(file_size);
+  char *buffer = (char *)malloc(BLOCK_SIZE);
   size_t end;
   size_t block_count = file_size / ((size_t)BLOCK_SIZE);
   size_t last_block_size = file_size % ((size_t)BLOCK_SIZE);
@@ -116,15 +118,13 @@ int reverse_file(char *source_file_name, char *destination_file_name) {
     fseek(source_file, -BLOCK_SIZE * i, SEEK_END);
     end = fread(buffer, sizeof(char), BLOCK_SIZE, source_file);
     buffer[end] = 0;
-    _ = reverse_string(&buffer);
-    fprintf(destination_file, "%s", buffer);
+    fprintf(destination_file, "%s", reverse_string(buffer));
   }
 
   fseek(source_file, 0, SEEK_SET);
   end = fread(buffer, sizeof(char), last_block_size, source_file);
   buffer[end] = 0;
-  _ = reverse_string(&buffer);
-  fprintf(destination_file, "%s", buffer);
+  fprintf(destination_file, "%s", reverse_string(buffer));
 
   free(buffer);
   if ((ERROR_CODE = close_file(source_file))) {
@@ -136,7 +136,23 @@ int reverse_file(char *source_file_name, char *destination_file_name) {
   return NO_ERROR;
 }
 
+struct timespec timespec_diff(struct timespec start, struct timespec end) {
+  struct timespec out;
+
+  if ((end.tv_nsec - start.tv_nsec) < 0) {
+    out.tv_sec = end.tv_sec - start.tv_sec - 1;
+    out.tv_nsec = 1000000000 + end.tv_nsec - start.tv_nsec;
+  } else {
+    out.tv_sec = end.tv_sec - start.tv_sec;
+    out.tv_nsec = end.tv_nsec - start.tv_nsec;
+  }
+  return out;
+}
+
 int main(int argc, char *argv[]) {
+  struct timespec start, end;
+  clock_gettime(CLOCK_REALTIME, &start);
+
   int result = check_arguments(argc, argv);
   if (result) {
     return result;
@@ -146,6 +162,9 @@ int main(int argc, char *argv[]) {
   if (result) {
     return result;
   }
+  clock_gettime(CLOCK_REALTIME, &end);
+  struct timespec normalized = timespec_diff(start, end);
+  printf("Time: %lds %ldns \n", normalized.tv_sec, normalized.tv_nsec);
 
   return 0;
 }
