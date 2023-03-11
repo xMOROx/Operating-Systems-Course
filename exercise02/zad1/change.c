@@ -169,7 +169,7 @@ int change(struct Arguments *arguments) {
 
   int count_blocks = size / BLOCK_SIZE;
 
-  for (int i = 0; i < count_blocks + 1; i++) {
+  for (int i = 0; i < count_blocks; i++) {
     _ = Universal_read_file(source_file, &buffer);
     change_char_in_buffer(&buffer, old_char, new_char);
     _ = Universal_write_file(destination_file, buffer);
