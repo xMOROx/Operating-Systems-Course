@@ -30,15 +30,33 @@ test: forkTest execTest
 
 
 forkTest: clean compile
-	./$(TARGET_1) ignore fork > $(RESULT:.txt=_fork.txt)
+	echo ""	> $(RESULT:.txt=_fork.txt)
+	
+	echo ">>> Ignore:" >> $(RESULT:.txt=_fork.txt)
+	./$(TARGET_1) ignore fork >> $(RESULT:.txt=_fork.txt)
+
+	echo ">>> Pending:" >> $(RESULT:.txt=_fork.txt)
 	./$(TARGET_1) pending fork >> $(RESULT:.txt=_fork.txt)
+
+	echo ">>> Mask:" >> $(RESULT:.txt=_fork.txt)
 	./$(TARGET_1) mask fork >> $(RESULT:.txt=_fork.txt)
+
+	echo ">>> Handler:" >> $(RESULT:.txt=_fork.txt)
 	./$(TARGET_1) handler fork >> $(RESULT:.txt=_fork.txt)
 
 execTest: clean compile
-	./$(TARGET_1) ignore exec > $(RESULT:.txt=_exec.txt)
-	./$(TARGET_1) pending exec >> $(RESULT:.txt=_exec.txt) 
-	./$(TARGET_1) mask exec >> $(RESULT:.txt=_exec.txt) 
+	echo ""	> $(RESULT:.txt=_exec.txt)
+	
+	echo ">>> Ignore:" >> $(RESULT:.txt=_exec.txt)
+	./$(TARGET_1) ignore exec >> $(RESULT:.txt=_exec.txt)
+
+	echo ">>> Pending:" >> $(RESULT:.txt=_exec.txt)
+	./$(TARGET_1) pending exec >> $(RESULT:.txt=_exec.txt)
+
+	echo ">>> Mask:" >> $(RESULT:.txt=_exec.txt)
+	./$(TARGET_1) mask exec >> $(RESULT:.txt=_exec.txt)
+
+	echo ">>> Handler:" >> $(RESULT:.txt=_exec.txt)
 	./$(TARGET_1) handler exec >> $(RESULT:.txt=_exec.txt)
 
 clean_obj:
