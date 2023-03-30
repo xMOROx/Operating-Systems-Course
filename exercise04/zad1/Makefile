@@ -61,8 +61,11 @@ execTest: clean compile
 
 clean_obj:
 	rm -f $(OBJ_FILES)
+
 clean_compile:
 	rm -f $(OBJ_FILES) $(TARGET)
 
 clean:
-	rm -f $(OBJ_FILES) $(TARGET) *.exe *.txt
+	rm -f $(OBJ_FILES) $(TARGET) *.exe $(RESULT:.txt=_fork.txt) $(RESULT:.txt=_exec.txt)
+
+
