@@ -70,6 +70,7 @@ void handle_signal(int sig, siginfo_t *info, void *ucontext) {
   } else {
     request_received++;
     state = (STATES)request;
+
     done = false;
     display_time_periodically = (state == CURRENT_TIME_PERIODICALLY);
   }
@@ -79,6 +80,10 @@ void handle_signal(int sig, siginfo_t *info, void *ucontext) {
   }
 
   kill(sender_pid, SIGNAL);
+
+  if(state == EXIT){
+     exit(EXIT_SUCCESS);
+  }
 }
 
 int main(int argc, char *argv[]) {
