@@ -17,6 +17,14 @@ all: $(EXEC)
 
 report: clean all
 	echo "---------------------" > report.txt
+	./integral.exe 0.00000001 1 >> report.txt
+	@echo "---------------------" >> report.txt
+
+	./integral.exe 0.00000001 10 >> report.txt
+	@echo "---------------------" >> report.txt
+
+	./integral.exe 0.00000001 100 >> report.txt
+	@echo "---------------------" >> report.txt
 
 	./integral.exe 0.000000001 1 >> report.txt
 	@echo "---------------------" >> report.txt
@@ -25,6 +33,15 @@ report: clean all
 	@echo "---------------------" >> report.txt
 
 	./integral.exe 0.000000001 100 >> report.txt
+	@echo "---------------------" >> report.txt
+
+	./integral.exe 0.0000000001 1 >> report.txt
+	@echo "---------------------" >> report.txt
+
+	./integral.exe 0.0000000001 10 >> report.txt
+	@echo "---------------------" >> report.txt
+
+	./integral.exe 0.0000000001 100 >> report.txt
 	@echo "---------------------" >> report.txt
 
 clean:
