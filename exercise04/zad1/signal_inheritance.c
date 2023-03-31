@@ -19,7 +19,7 @@ void handler(int signum) {
 int parse_first_argument(char *arg, Mode *mode) {
   for (int i = 0; i < 4; i++) {
     if (strcmp(arg, mode_str[i]) == 0) {
-      *mode = i;
+      *mode = (Mode)i;
       return EXIT_SUCCESS;
     }
   }
@@ -30,7 +30,7 @@ int parse_first_argument(char *arg, Mode *mode) {
 int parse_second_argument(char *arg, Action *action) {
   for (int i = 0; i < 2; i++) {
     if (strcmp(arg, action_str[i]) == 0) {
-      *action = i;
+      *action = (Action)i;
       return EXIT_SUCCESS;
     }
   }

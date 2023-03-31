@@ -5,7 +5,6 @@
 #include <time.h>
 #include <unistd.h>
 #define SIGNAL SIGUSR1
-#define MAX(a, b) (((a) > (b)) ? (a) : (b))
 
 typedef enum {
   NUMBERS = 1,
@@ -81,8 +80,8 @@ void handle_signal(int sig, siginfo_t *info, void *ucontext) {
 
   kill(sender_pid, SIGNAL);
 
-  if(state == EXIT){
-     exit(EXIT_SUCCESS);
+  if (state == EXIT) {
+    exit(EXIT_SUCCESS);
   }
 }
 
@@ -145,6 +144,7 @@ int main(int argc, char *argv[]) {
       break;
     }
     }
+
     done = true;
     _ = clock();
   }

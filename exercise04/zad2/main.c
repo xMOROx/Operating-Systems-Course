@@ -62,7 +62,7 @@ void SIGINFO_function(struct sigaction saction) {
 
   if (fork() == 0) {
     prepare_action(&saction, SIGINFO_handler, SA_SIGINFO);
-    kill(getpid(), SIGUSR1);
+    kill(getpid(), SIGUSR1); // raise
     exit(EXIT_SUCCESS);
   } else {
     wait(NULL);
@@ -112,9 +112,10 @@ void SA_ONSTACK_function(struct sigaction saction, int flags) {
 
 int main(int argc, char *argv[]) {
   if (argc != 1) {
-    printf("[Usage]: %s \n", argv[0]);
+    fprintf(stderr, "[Usage]: %s \n", argv[0]);
     exit(EXIT_FAILURE);
   }
+
   struct sigaction sigaction;
 
   printf("Testing SIGINFO \n");
