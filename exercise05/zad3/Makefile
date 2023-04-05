@@ -20,6 +20,15 @@ prog_to_integrate: prog_to_integrate.c
 report: clean build
 	@echo "Generating report..."
 	@echo "---------------------" > report.txt
+	./integral.exe 0.001 1 >> report.txt
+	@echo "---------------------" >> report.txt
+
+	./integral.exe 0.001 10 >> report.txt
+	@echo "---------------------" >> report.txt
+
+	./integral.exe 0.001 100 >> report.txt
+	@echo "---------------------" >> report.txt
+	
 	./integral.exe 0.00000001 1 >> report.txt
 	@echo "---------------------" >> report.txt
 
@@ -28,7 +37,7 @@ report: clean build
 
 	./integral.exe 0.00000001 100 >> report.txt
 	@echo "---------------------" >> report.txt
-
+	
 	./integral.exe 0.000000001 1 >> report.txt
 	@echo "---------------------" >> report.txt
 
@@ -37,7 +46,7 @@ report: clean build
 
 	./integral.exe 0.000000001 100 >> report.txt
 	@echo "---------------------" >> report.txt
-
+	
 	./integral.exe 0.0000000001 1 >> report.txt
 	@echo "---------------------" >> report.txt
 
