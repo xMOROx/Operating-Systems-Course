@@ -10,6 +10,13 @@
 
 #define BUFF_SIZE 1024
 
+bool is_valid_email(char *email) {
+  char *at = strchr(email, '@');
+  char *dot = strrchr(email, '.');
+
+  return (at != NULL && dot != NULL && dot > at);
+}
+
 int parse_one_argument(char **argv) {
   char *command = "mail -H";
 
@@ -22,9 +29,11 @@ int parse_one_argument(char **argv) {
         stderr,
         "Invalid argument: %s is not a valid argument for 1 argument usage\n",
         argv[1]);
+    fprintf(stderr, "Usage %s --help for more info \n", argv[1]);
     return EXIT_FAILURE;
   }
-  FILE *mail = popen(command, "r");
+
+  FILE *mail = popen(command, "w");
 
   if (mail == NULL) {
     fprintf(stderr, "Error: Could not open mail\n");
@@ -40,8 +49,8 @@ int parse_one_argument(char **argv) {
   return EXIT_SUCCESS;
 }
 
-int parse_three_arguments(char **argv) {
-  FILE *mail = popen("mail", "r");
+int parse_three_arguments(int argc, char **argv) {
+  FILE *mail = popen("mail", "w");
 
   if (mail == NULL) {
     fprintf(stderr, "Error: Could not open mail\n");
@@ -50,23 +59,27 @@ int parse_three_arguments(char **argv) {
 
   char *to = argv[1];
   char *subject = argv[2];
-  char *body = strtok(argv[3], " ");
-
   char buffor[BUFF_SIZE];
 
-  while (body != NULL) {
-    strcat(buffor, body);
-    strcat(buffor, " ");
-    body = strtok(NULL, " ");
+  if (!is_valid_email(to)) {
+    fprintf(stderr, "Error: Invalid email address\n");
+    pclose(mail);
+    return EXIT_FAILURE;
   }
 
-  char *command = malloc(sizeof(char) *
-                         (strlen(to) + strlen(subject) + strlen(buffor) + 1));
+  for (int i = 3; i < argc; i++) {
+    strcat(buffor, argv[i]);
+    strcat(buffor, " ");
+  }
+
+  char command[strlen(to) + strlen(subject) + strlen(buffor) + 100];
 
   snprintf(command,
-           sizeof(char) * (strlen(to) + strlen(subject) + strlen(buffor) + 1),
+           sizeof(char) * (strlen(to) + strlen(subject) + strlen(buffor) + 100),
            "echo '%s' | mail -s '%s' '%s'", buffor, subject, to);
-
+  printf("%s \n", command);
+  system(command);
+  // free(command);
   pclose(mail);
 
   return EXIT_SUCCESS;
@@ -80,10 +93,16 @@ int main(int argc, char **argv) {
     return EXIT_FAILURE;
   }
 
+  if (argc == 1) {
+    fprintf(stderr, "Usage: %s <date>/<sender> OR %s <to> <title> <body>\n",
+            argv[0], argv[0]);
+    return EXIT_FAILURE;
+  }
+
   if (argc == 2)
     parse_one_argument(argv);
   else if (argc > 3)
-    parse_three_arguments(argv);
+    parse_three_arguments(argc, argv);
   else {
     fprintf(stderr, "Usage of 1 argument: %s <date>/<sender>\n", argv[0]);
     fprintf(stderr, "Usage of 3 or more arguments: %s <to> <title> <body>\n",
