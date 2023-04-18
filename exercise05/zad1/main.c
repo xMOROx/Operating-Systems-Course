@@ -79,7 +79,6 @@ int parse_three_arguments(int argc, char **argv) {
            "echo '%s' | mail -s '%s' '%s'", buffor, subject, to);
   printf("%s \n", command);
   system(command);
-  // free(command);
   pclose(mail);
 
   return EXIT_SUCCESS;
