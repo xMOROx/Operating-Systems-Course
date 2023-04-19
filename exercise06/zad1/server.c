@@ -39,12 +39,13 @@ int main(int argc, char *argv[]) {
 
   key_t server_queue_key = ftok(HOME_PATH, SERVER_ID);
 
+  if (server_queue_key == -1)
+    handle_errors(FTOK_ERROR);
+
   server_queue_id = msgget(server_queue_key, IPC_CREAT | 0666);
 
-  if (server_queue_id == -1) {
-    fprintf(stderr, "Error while creating server queue. \n");
-    exit(EXIT_FAILURE);
-  }
+  if (server_queue_id == -1)
+    handle_errors(CREATE_QUEUE_ERROR);
 
   printf("Server queue id: %d \n", server_queue_id);
 
@@ -53,7 +54,9 @@ int main(int argc, char *argv[]) {
   MessageContener *msgContener = malloc(sizeof(MessageContener));
 
   while (true) {
-    msgrcv(server_queue_id, msgContener, MSG_SIZE, -6, 0);
+    if (msgrcv(server_queue_id, msgContener, MSG_SIZE, -6, 0) == -1)
+      handle_errors(RECEIVE_ERROR);
+
     switch (msgContener->msgtype) {
 
     case INIT:
@@ -103,8 +106,14 @@ void server_initialize(MessageContener *msgContener) {
       current_available_client_id++;
     }
   }
+
   int client_queue_id = msgget(msgContener->client_queue_key, 0);
-  msgsnd(client_queue_id, msgContener, MSG_SIZE, 0);
+  if (client_queue_id == -1)
+    handle_errors(OPEN_ERROR);
+
+  if (msgsnd(client_queue_id, msgContener, MSG_SIZE, 0) == -1)
+    handle_errors(SEND_TO_CLIENT_ERROR);
+
   server_log_message(msgContener);
 }
 
@@ -123,21 +132,33 @@ void server_stop_client(int client_id) {
 
 void server_end_working() {
   MessageContener *msgContener = malloc(sizeof(MessageContener));
+
   for (int i = 0; i < MAX_NO_OF_CLIENTS; i++) {
     if (clients_queues[i] != -1) {
       msgContener->msgtype = STOP;
       int client_queue_id = msgget(clients_queues[i], 0);
-      msgsnd(client_queue_id, msgContener, MSG_SIZE, 0);
-      msgrcv(server_queue_id, msgContener, MSG_SIZE, STOP, 0);
+      if (client_queue_id == -1)
+        handle_errors(OPEN_ERROR);
+
+      if (msgsnd(client_queue_id, msgContener, MSG_SIZE, 0) == -1)
+        handle_errors(SEND_TO_CLIENT_ERROR);
+
+      if (msgrcv(server_queue_id, msgContener, MSG_SIZE, STOP, 0) == -1)
+        handle_errors(RECEIVE_ERROR);
     }
   }
-  msgctl(server_queue_id, IPC_RMID, NULL);
+
+  if (msgctl(server_queue_id, IPC_RMID, NULL) == -1)
+    handle_errors(DELETE_ERROR);
+
   exit(EXIT_SUCCESS);
 }
 
 void server_list_active_clients(int client_id) {
   MessageContener *msgContener = malloc(sizeof(MessageContener));
+
   strcpy(msgContener->msg, "");
+
   for (int i = 0; i < MAX_NO_OF_CLIENTS; i++) {
     if (clients_queues[i] != -1) {
       sprintf(msgContener->msg + strlen(msgContener->msg),
@@ -147,14 +168,22 @@ void server_list_active_clients(int client_id) {
 
   msgContener->msgtype = LIST;
   int client_queue_id = msgget(clients_queues[client_id], 0);
-  msgsnd(client_queue_id, msgContener, MSG_SIZE, 0);
+  if (client_queue_id == -1)
+    handle_errors(OPEN_ERROR);
+
+  if (msgsnd(client_queue_id, msgContener, MSG_SIZE, 0) == -1)
+    handle_errors(SEND_TO_CLIENT_ERROR);
 }
 
 void server_send_to_all(MessageContener *msgContener) {
   for (int i = 0; i < MAX_NO_OF_CLIENTS; i++) {
     if (clients_queues[i] != -1 && msgContener->client_id != i) {
       int other_client_queue_id = msgget(clients_queues[i], 0);
-      msgsnd(other_client_queue_id, msgContener, MSG_SIZE, 0);
+      if (other_client_queue_id == -1)
+        handle_errors(OPEN_ERROR);
+
+      if (msgsnd(other_client_queue_id, msgContener, MSG_SIZE, 0) == -1)
+        handle_errors(SEND_TO_CLIENT_ERROR);
     }
   }
 }
@@ -162,18 +191,20 @@ void server_send_to_all(MessageContener *msgContener) {
 void server_send_to_one(MessageContener *msgContener) {
   int other_client_queue_id =
       msgget(clients_queues[msgContener->other_client_id], 0);
-  msgsnd(other_client_queue_id, msgContener, MSG_SIZE, 0);
+  if (other_client_queue_id == -1)
+    handle_errors(OPEN_ERROR);
+
+  if (msgsnd(other_client_queue_id, msgContener, MSG_SIZE, 0) == -1)
+    handle_errors(SEND_TO_CLIENT_ERROR);
 }
 
 void server_log_message(MessageContener *msgContener) {
-  struct tm timeinfo = msgContener->time_of_msg;
+  struct tm timeinfo = msgContener->time_of_msg_struct;
 
   FILE *logs = fopen("logs.txt", "a");
 
-  if (logs == NULL) {
-    fprintf(stderr, "Error while opening logs file. \n");
-    exit(EXIT_FAILURE);
-  }
+  if (logs == NULL)
+    handle_errors(OPEN_FILE_ERROR);
 
   fprintf(logs, "Send at %d-%d-%d %02d:%02d:%02d: \n", timeinfo.tm_year + 1900,
           timeinfo.tm_mon + 1, timeinfo.tm_mday, timeinfo.tm_hour,
@@ -211,5 +242,6 @@ void server_log_message(MessageContener *msgContener) {
             msgContener->client_id);
   }
 
-  fclose(logs);
+  if (fclose(logs) == EOF)
+    handle_errors(CLOSE_FILE_ERROR);
 }

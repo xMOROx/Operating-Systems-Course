@@ -49,10 +49,24 @@ int main(int argc, char **argv) {
   srand(time(NULL));
 
   client_queue_key = ftok(HOME_PATH, rand() % MAX_CLIENT_QUEUE_KEY + 1);
+
+  if (client_queue_key == -1)
+    handle_errors(FTOK_ERROR);
+
   client_queue_id = msgget(client_queue_key, IPC_CREAT | 0666);
 
+  if (client_queue_id == -1)
+    handle_errors(CREATE_QUEUE_ERROR);
+
   key_t server_queue_key = ftok(HOME_PATH, SERVER_ID);
+
+  if (server_queue_key == -1)
+    handle_errors(FTOK_ERROR);
+
   server_queue_id = msgget(server_queue_key, 0);
+
+  if (server_queue_id == -1)
+    handle_errors(SERVER_NOT_RUNNING);
 
   client_id = handle_initialize();
 
@@ -139,17 +153,20 @@ int handle_initialize() {
   MessageContener *msgContener = malloc(sizeof(MessageContener));
 
   msgContener->msgtype = INIT;
-  msgContener->time_of_msg = *localtime(&time_value);
+  msgContener->time_of_msg_struct = *localtime(&time_value);
   msgContener->client_queue_key = client_queue_key;
-  msgsnd(server_queue_id, msgContener, MSG_SIZE, 0);
-  msgrcv(client_queue_id, msgContener, MSG_SIZE, THE_OLDEST_MESSAGE, 0);
+
+  if (msgsnd(server_queue_id, msgContener, MSG_SIZE, 0) == -1)
+    handle_errors(SEND_TO_SERVER_ERROR);
+
+  if (msgrcv(client_queue_id, msgContener, MSG_SIZE, THE_OLDEST_MESSAGE, 0) ==
+      -1)
+    handle_errors(RECEIVE_ERROR);
 
   int client_id = msgContener->client_id;
 
-  if (client_id == -1) {
-    fprintf(stderr, "Server is full. Exiting... \n");
-    exit(EXIT_FAILURE);
-  }
+  if (client_id == -1)
+    handle_errors(SERVER_FULL);
 
   return client_id;
 }
@@ -159,11 +176,14 @@ void handle_stop() {
   MessageContener *msgContener = malloc(sizeof(MessageContener));
 
   msgContener->msgtype = STOP;
-  msgContener->time_of_msg = *localtime(&time_value);
+  msgContener->time_of_msg_struct = *localtime(&time_value);
   msgContener->client_id = client_id;
 
-  msgsnd(server_queue_id, msgContener, MSG_SIZE, 0);
-  msgctl(client_queue_id, IPC_RMID, NULL);
+  if (msgsnd(server_queue_id, msgContener, MSG_SIZE, 0) == -1)
+    handle_errors(SEND_TO_SERVER_ERROR);
+
+  if (msgctl(client_queue_id, IPC_RMID, NULL) == -1)
+    handle_errors(DELETE_ERROR);
 
   exit(EXIT_SUCCESS);
 }
@@ -173,11 +193,15 @@ void handle_list() {
   MessageContener *msgContener = malloc(sizeof(MessageContener));
 
   msgContener->msgtype = LIST;
-  msgContener->time_of_msg = *localtime(&time_value);
+  msgContener->time_of_msg_struct = *localtime(&time_value);
   msgContener->client_id = client_id;
 
-  msgsnd(server_queue_id, msgContener, MSG_SIZE, 0);
-  msgrcv(client_queue_id, msgContener, MSG_SIZE, THE_OLDEST_MESSAGE, 0);
+  if (msgsnd(server_queue_id, msgContener, MSG_SIZE, 0) == -1)
+    handle_errors(SEND_TO_SERVER_ERROR);
+
+  if (msgrcv(client_queue_id, msgContener, MSG_SIZE, THE_OLDEST_MESSAGE, 0) ==
+      -1)
+    handle_errors(RECEIVE_ERROR);
 
   printf("%s", msgContener->msg);
 }
@@ -187,12 +211,13 @@ void handle_to_all(char *msg) {
   MessageContener *msgContener = malloc(sizeof(MessageContener));
 
   msgContener->msgtype = TO_ALL;
-  msgContener->time_of_msg = *localtime(&time_value);
+  msgContener->time_of_msg_struct = *localtime(&time_value);
   msgContener->client_id = client_id;
 
   strcpy(msgContener->msg, msg);
 
-  msgsnd(server_queue_id, msgContener, MSG_SIZE, 0);
+  if (msgsnd(server_queue_id, msgContener, MSG_SIZE, 0) == -1)
+    handle_errors(SEND_TO_SERVER_ERROR);
 }
 
 void handle_to_one(int other_client_id, char *msg) {
@@ -200,14 +225,15 @@ void handle_to_one(int other_client_id, char *msg) {
   MessageContener *msgContener = malloc(sizeof(MessageContener));
 
   msgContener->msgtype = TO_ONE;
-  msgContener->time_of_msg = *localtime(&time_value);
+  msgContener->time_of_msg_struct = *localtime(&time_value);
 
   msgContener->client_id = client_id;
   msgContener->other_client_id = other_client_id;
 
   strcpy(msgContener->msg, msg);
 
-  msgsnd(server_queue_id, msgContener, MSG_SIZE, 0);
+  if (msgsnd(server_queue_id, msgContener, MSG_SIZE, 0) == -1)
+    handle_errors(SEND_TO_SERVER_ERROR);
 }
 
 void handle_server_message() {
@@ -219,8 +245,8 @@ void handle_server_message() {
       printf("Server send stop message. Exiting...\n");
       handle_stop();
     } else {
-      struct tm *time_of_msg = &msgContener->time_of_msg;
-      printf("Message from: %d has been sent at  %02d:%02d:%02d.\n ",
+      struct tm *time_of_msg = &msgContener->time_of_msg_struct;
+      printf("Message from: %d has been sent at  %02d:%02d:%02d.\n",
              msgContener->client_id, time_of_msg->tm_hour, time_of_msg->tm_min,
              time_of_msg->tm_sec);
       printf("Message content: %s \n", msgContener->msg);
