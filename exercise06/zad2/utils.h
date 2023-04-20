@@ -15,6 +15,12 @@
 #define MAX_MSG_SIZE 512
 #define true 1
 #define CLIENT_QUEUE_NAME_SIZE 10
+#define RESET "\033[0m"
+#define RED "\033[1;31m"
+#define GREEN "\033[1;32m"
+#define BLUE "\033[1;34m"
+#define CYAN "\033[1;36m"
+#define MAGENTA "\033[1;35m"
 
 typedef struct MessageContener {
   int client_id;
@@ -46,16 +52,17 @@ typedef enum error_code {
   SERVER_FULL = 9
 } error_code;
 
-const char *error_msg[] = {"Error while sending message to server.\n",
-                           "Error while sending message to client.\n",
-                           "Error while receiving message.\n",
-                           "Error while closing queue.\n",
-                           "Error while opening queue.\n",
-                           "Error while deleting queue.\n",
-                           "Error while opening file.\n",
-                           "Error while closing file.\n",
-                           "Server is not running: ",
-                           "Server is full.\nTry again later.\n"};
+const char *error_msg[] = {
+    "\033[1;31m[Error]\033[0m while sending message to server.\n",
+    "\033[1;31m[Error]\033[0m while sending message to client.\n",
+    "\033[1;31m[Error]\033[0m while receiving message.\n",
+    "\033[1;31m[Error]\033[0m while closing queue.\n",
+    "\033[1;31m[Error]\033[0m while opening queue.\n",
+    "\033[1;31m[Error]\033[0m while deleting queue.\n",
+    "\033[1;31m[Error]\033[0m while opening file.\n",
+    "\033[1;31m[Error]\033[0m while closing file.\n",
+    "\033[1;34m[Info]\033[0mServer is not running: ",
+    "\033[1;34m[Info]\033[0mServer is full.\nTry again later.\n"};
 
 const char *perror_type[] = {"mq_send", "mq_send",   "mq_receive", "mq_close",
                              "mq_open", "mq_unlink", "fopen",      "fclose",

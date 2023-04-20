@@ -42,7 +42,9 @@ void (*command_handlers_two_arg[1])(int, char *) = {
 
 int main(int argc, char **argv) {
   if (argc != 1) {
-    fprintf(stderr, "Wrong number of arguments. Usage: ./client.exe\n");
+    fprintf(stderr,
+            "%s[Error]%sWrong number of arguments. %sUsage%s: ./client.exe\n",
+            RED, RESET, CYAN, RESET);
     exit(EXIT_FAILURE);
   }
 
@@ -60,8 +62,9 @@ int main(int argc, char **argv) {
 
   signal(SIGINT, handle_stop);
 
-  printf("Client started with name %s and id %d \n", client_queue_name,
-         client_queue_id);
+  printf("%s[Info]%sClient started with name %s%s%s and id %s%d%s \n", BLUE,
+         RESET, MAGENTA, client_queue_name, RESET, CYAN, client_queue_id,
+         RESET);
 
   size_t len = 0;
   ssize_t read;
@@ -70,14 +73,14 @@ int main(int argc, char **argv) {
 
   while (true) {
 
-    printf("Enter command: ");
+    printf("%s>>>%s Enter command: ", GREEN, RESET);
     read = getline(&command, &len, stdin);
     command[read - 1] = '\0';
 
     handle_server_message();
 
     if (strcmp(command, "") == 0) {
-      fprintf(stderr, "Empty command. \n");
+      fprintf(stderr, "%s[Error]%sEmpty command. \n", RED, RESET);
       continue;
     }
     parse_command(command);
@@ -100,8 +103,8 @@ void parse_command(char *command) {
         token = strtok(NULL, "");
 
         if (token == NULL) {
-          fprintf(stderr, "Wrong command. \n");
-          continue;
+          break;
+          ;
         }
         command_handlers_one_arg[i - NO_OF_COMMANDS_WITH_ZERO_ARG](token);
 
@@ -112,16 +115,16 @@ void parse_command(char *command) {
         token = strtok(NULL, " ");
 
         if (token == NULL) {
-          fprintf(stderr, "Wrong command. \n");
-          continue;
+          break;
+          ;
         }
 
         int other_client_id = atoi(token);
         token = strtok(NULL, "");
 
         if (token == NULL) {
-          fprintf(stderr, "Wrong command. \n");
-          continue;
+          break;
+          ;
         }
 
         command_handlers_two_arg[i - NO_OF_COMMANDS_WITH_ZERO_ARG -
@@ -134,7 +137,7 @@ void parse_command(char *command) {
     }
   }
   if (flag == 0)
-    fprintf(stderr, "Wrong command. \n");
+    fprintf(stderr, "%s[ERROR]%sWrong command. \n", RED, RESET);
 }
 
 void generate_client_queue_name() {
@@ -198,7 +201,7 @@ void handle_list() {
   if (mq_receive(client_queue_decscriptor, (char *)&msgContener, MSG_SIZE,
                  NULL) == -1)
     handle_errors(RECEIVE_ERROR);
-
+  printf("\n");
   printf("%s \n", msgContener.msg);
 }
 
@@ -240,13 +243,15 @@ void handle_server_message() {
   while (mq_timedreceive(client_queue_decscriptor, (char *)&msgContener,
                          MSG_SIZE, NULL, &time_of_message) != -1) {
     if (msgContener.msgtype == STOP) {
-      printf("Server stopped. Exiting... \n");
+      printf("%s[Info]%sServer stopped. Exiting... \n", BLUE, RESET);
       handle_stop();
     } else {
-      printf("Message from: %d has been sent at %02d:%02d:%02d \n",
-             msgContener.client_id, msgContener.time_of_msg_struct.tm_hour,
+      printf("%s[Receive]%sMessage from: %s%d%s has been sent at "
+             "%s%02d:%02d:%02d%s \n",
+             GREEN, RESET, CYAN, msgContener.client_id, RESET, BLUE,
+             msgContener.time_of_msg_struct.tm_hour,
              msgContener.time_of_msg_struct.tm_min,
-             msgContener.time_of_msg_struct.tm_sec);
+             msgContener.time_of_msg_struct.tm_sec, RESET);
       printf("Message: %s \n", msgContener.msg);
     }
   }
