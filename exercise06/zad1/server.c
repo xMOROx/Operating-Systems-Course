@@ -29,13 +29,15 @@ void init_clients_queues();
 
 int main(int argc, char *argv[]) {
   if (argc != 1) {
-    fprintf(stderr, "Wrong number of arguments. Usage: ./server.exe \n");
+    fprintf(stderr,
+            "%s[ERROR]%s Wrong number of arguments. %sUsage%s: ./server.exe\n",
+            RED, RESET, CYAN, RESET);
     exit(EXIT_FAILURE);
   }
 
   init_clients_queues();
 
-  printf("Server starting... \n");
+  printf("%s[Info]%sServer starting... \n", BLUE, RESET);
 
   key_t server_queue_key = ftok(HOME_PATH, SERVER_ID);
 
@@ -47,7 +49,7 @@ int main(int argc, char *argv[]) {
   if (server_queue_id == -1)
     handle_errors(CREATE_QUEUE_ERROR);
 
-  printf("Server queue id: %d \n", server_queue_id);
+  printf("Server queue id: %s%d%s \n", CYAN, server_queue_id, RESET);
 
   signal(SIGINT, server_end_working); // SIGINT - ctrl + c
 
@@ -83,7 +85,7 @@ int main(int argc, char *argv[]) {
 
       break;
     default:
-      printf("Unknown message type. \n");
+      printf("%s[Error]%sUnknown message type. \n", RED, RESET);
       break;
     }
   }
@@ -162,7 +164,7 @@ void server_list_active_clients(int client_id) {
   for (int i = 0; i < MAX_NO_OF_CLIENTS; i++) {
     if (clients_queues[i] != -1) {
       sprintf(msgContener->msg + strlen(msgContener->msg),
-              "ID %d is active... \n", i);
+              "ID %s%d%s is active... \n", BLUE, i, RESET);
     }
   }
 
