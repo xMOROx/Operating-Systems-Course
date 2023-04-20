@@ -49,7 +49,8 @@ typedef enum error_code {
   OPEN_FILE_ERROR = 6,
   CLOSE_FILE_ERROR = 7,
   SERVER_NOT_RUNNING = 8,
-  SERVER_FULL = 9
+  SERVER_FULL = 9,
+  UNLINK_ERROR = 10
 } error_code;
 
 const char *error_msg[] = {
@@ -62,11 +63,12 @@ const char *error_msg[] = {
     "\033[1;31m[Error]\033[0m while opening file.\n",
     "\033[1;31m[Error]\033[0m while closing file.\n",
     "\033[1;34m[Info]\033[0mServer is not running: ",
-    "\033[1;34m[Info]\033[0mServer is full.\nTry again later.\n"};
+    "\033[1;34m[Info]\033[0mServer is full.\nTry again later.\n",
+    "\033[1;31m[Error]\033[0m while unlinking queue.\n"};
 
 const char *perror_type[] = {"mq_send", "mq_send",   "mq_receive", "mq_close",
                              "mq_open", "mq_unlink", "fopen",      "fclose",
-                             "",        ""};
+                             "",        "",          "mq_unlink"};
 
 const u_long MSG_SIZE = sizeof(MessageContener);
 

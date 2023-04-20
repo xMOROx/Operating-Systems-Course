@@ -184,6 +184,9 @@ void handle_stop() {
   if (mq_close(server_queue_descriptor) == -1)
     handle_errors(CLOSE_ERROR);
 
+  if (mq_unlink(client_queue_name) == -1)
+    handle_errors(UNLINK_ERROR);
+
   exit(EXIT_SUCCESS);
 }
 

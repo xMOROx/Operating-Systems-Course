@@ -153,8 +153,7 @@ void server_end_working() {
           -1)
         handle_errors(SEND_TO_CLIENT_ERROR);
 
-      if (mq_receive(client_queue_descriptor, (char *)&msgContener, MSG_SIZE,
-                     NULL) == -1)
+      if (mq_receive(server_queue, (char *)&msgContener, MSG_SIZE, NULL) == -1)
         handle_errors(RECEIVE_ERROR);
 
       if (mq_close(client_queue_descriptor) == -1)
@@ -164,6 +163,9 @@ void server_end_working() {
 
   if (mq_close(server_queue) == -1)
     handle_errors(CLOSE_ERROR);
+
+  if (mq_unlink(SERVER_QUEUE_NAME) == -1)
+    handle_errors(UNLINK_ERROR);
 
   exit(EXIT_SUCCESS);
 }
