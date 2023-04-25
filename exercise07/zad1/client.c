@@ -30,6 +30,8 @@ int main(int argc, char **argv) {
     return EXIT_FAILURE;
   }
 
+  srand(time(NULL) + getpid());
+
   char *queue = shared_memory_create(IDENTIFICATOR, BUFFOR_SIZE);
   if (queue == NULL) {
     exit(EXIT_FAILURE);
@@ -37,8 +39,8 @@ int main(int argc, char **argv) {
 
   open_semaphores();
 
-  if (strlen(queue) >= BUFFOR_SIZE) {
-    fprintf(stderr, "[ERROR] Queue is full\n");
+  if (strlen(queue) >= HALL_PLACES_MAX_AMOUNT) {
+    fprintf(stderr, "%s[ERROR]%s Queue is full\n", RED, RESET);
     exit(EXIT_FAILURE);
   }
 
@@ -47,7 +49,17 @@ int main(int argc, char **argv) {
   semaphore_wait(sem_clients);
 
   char client = random_client();
-  printf("Client with id: %d entered the queue\n", client);
+  printf("\t\t%s[Client]%s Client with id: %d entered the queue\n", YELLOW,
+         RESET, client);
+  fflush(stdout);
+  queue_push(queue, client);
+  semaphore_post(sem_clients);
+
+  semaphore_post(sem_barbers);
+
+  semaphore_wait(sem_chairs);
+
+  printf("\t\t%s[Client]%s Client with id: %d done\n", GREEN, RESET, client);
   fflush(stdout);
 
   shared_memory_detach(queue);

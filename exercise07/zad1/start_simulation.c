@@ -49,11 +49,11 @@ int main(int argc, char **argv) {
     return EXIT_FAILURE;
   }
 
-  printf("Simulation started\n");
-  printf("Barbers total: %d\n", BARBER_MAX_AMOUNT);
-  printf("Chairs total: %d\n", CHAIR_MAX_AMOUNT);
-  printf("Clients total: %d\n", CLIENTS_MAX_AMOUNT);
-  printf("Queue size: %d\n", HALL_PLACES_MAX_AMOUNT);
+  printf("%s%s[Simulation]%s Simulation started\n", BOLD, BLUE, RESET);
+  printf("\t Barbers total: %d\n", BARBER_MAX_AMOUNT);
+  printf("\t Chairs total: %d\n", CHAIR_MAX_AMOUNT);
+  printf("\t Clients total: %d\n", CLIENTS_AMOUNT);
+  printf("\t Queue size: %d\n", HALL_PLACES_MAX_AMOUNT);
 
   fflush(stdout);
 
@@ -71,26 +71,27 @@ int main(int argc, char **argv) {
     if (fork() == 0)
       execl(BARBER_RUN, BARBER_RUN, NULL);
 
-  printf("Barbers created\n");
+  printf("%s%s[Simulation]%s Barbers created\n", BOLD, GREEN, RESET);
   fflush(stdout);
 
-  for (int i = 0; i < CLIENTS_MAX_AMOUNT; i++)
+  for (int i = 0; i < CLIENTS_AMOUNT; i++)
     if (fork() == 0)
       execl(CLIENT_RUN, CLIENT_RUN, NULL);
 
-  printf("Clients created\n");
+  printf("%s%s[Simulation]%s Clients created\n", BOLD, GREEN, RESET);
   fflush(stdout);
 
-  while (wait(NULL) > 0)
-    ;
+  while (wait(NULL) > 0) {
+  }
 
   if (!shared_memory_destroy(IDENTIFICATOR)) {
-    fprintf(stderr, "[ERROR] Cannot destroy shared memory\n");
+    fprintf(stderr, "%s%s[ERROR]%s Cannot destroy shared memory\n", BOLD, RED,
+            RESET);
     exit(EXIT_FAILURE);
   }
 
   close_semaphores();
-  printf("Simulation ended\n");
+  printf("%s%s[Simulation]%s Simulation ended\n", BOLD, MAGENTA, RESET);
   fflush(stdout);
   return EXIT_SUCCESS;
 }

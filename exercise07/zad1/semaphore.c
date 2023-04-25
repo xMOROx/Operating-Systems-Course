@@ -53,12 +53,7 @@ void semaphore_close(semaphore_t semaphore) {
   }
 }
 
-void semaphore_remove(const char *pathname) {
-  printf("Removing semaphore %s", pathname);
-  if (sem_unlink(pathname) == -1) {
-    error_handler_semaphore(SEMUNLINK_ERROR);
-  }
-}
+void semaphore_remove(const char *pathname) { sem_unlink(pathname); }
 
 void semaphore_post(semaphore_t semaphore) {
   if (sem_post(semaphore) == -1) {
@@ -104,10 +99,7 @@ semaphore_t semaphore_open(const char *pathname) {
 void semaphore_close(semaphore_t semaphore) {}
 void semaphore_remove(const char *pathname) {
   semaphore_t semaphore = semaphore_open(pathname);
-
-  if (semctl(semaphore, 0, IPC_RMID) == -1) {
-    error_handler_semaphore(SEMCTL_ERROR);
-  }
+  semctl(semaphore, 0, IPC_RMID);
 }
 void semaphore_wait(semaphore_t semaphore) {
   struct sembuf sops = {.sem_num = 0, .sem_op = -1, .sem_flg = 0};

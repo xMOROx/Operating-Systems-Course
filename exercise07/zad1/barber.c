@@ -10,8 +10,8 @@
 #include "shared_memory.h"
 #include "simulation_config.h"
 
-#define HAIRCUT_TIME 1000
-#define TIMEOUT 1000000
+#define HAIRCUT_TIME 10000
+#define TIMEOUT 100000
 
 static semaphore_t sem_queue;
 static semaphore_t sem_chairs;
@@ -38,7 +38,8 @@ int main(int argc, char **argv) {
 
   open_semaphores();
 
-  printf("Barber with id: %d started working\n", getpid());
+  printf("\t%s[Barber]%s Barber with id: %d started working\n", BLUE, RESET,
+         getpid());
   fflush(stdout);
 
   while (true) {
@@ -48,14 +49,16 @@ int main(int argc, char **argv) {
     char haircut = queue_pop(queue);
     semaphore_post(sem_clients);
 
-    printf("Barber with id: %d started haircutting client with id: %d\n",
-           getpid(), haircut);
+    printf("\t%s[Barber]%s Barber with id: %d started haircutting client with "
+           "id: %d\n",
+           CYAN, RESET, getpid(), haircut);
     fflush(stdout);
 
     usleep(HAIRCUT_TIME);
 
-    printf("Barber with id: %d finished haircutting client with id: %d\n",
-           getpid(), haircut);
+    printf("\t%s[Barber]%s Barber with id: %d finished haircutting client with "
+           "id: %d\n",
+           GREEN, RESET, getpid(), haircut);
     fflush(stdout);
 
     semaphore_post(sem_chairs);
@@ -68,7 +71,8 @@ int main(int argc, char **argv) {
       }
     }
   }
-  printf("Barber with id: %d finished working\n", getpid());
+  printf("\t%s[Barber]%s Barber with id: %d finished working\n", MAGENTA, RESET,
+         getpid());
   fflush(stdout);
 
   shared_memory_detach(queue);
