@@ -4,6 +4,8 @@
 #include "hall_queue.h"
 #include "simulation_config.h"
 
+static int numberOfClientsInQueue = 0;
+
 const char *errors_queue_msg[] = {
     "[ERROR] Empty queue\n",
     "[ERROR] Full queue\n",
@@ -18,20 +20,29 @@ char queue_pop(char *queue) {
     error_queue_message(EMPTY_QUEUE);
     return '\0';
   }
+
+  numberOfClientsInQueue--;
+
   char value = queue[0];
   memcpy(queue, queue + 1, strlen(queue) + 1);
   return value;
 }
+
 bool queue_push(char *queue, char value) {
+
   if (queue_is_full(queue)) {
     error_queue_message(FULL_QUEUE);
     return false;
   }
-  size_t size = strlen(queue);
 
+  numberOfClientsInQueue++;
+  size_t size = strlen(queue);
   queue[size] = value;
   queue[size + 1] = '\0';
   return true;
 }
 bool queue_is_empty(char *queue) { return strlen(queue) == 0; }
-bool queue_is_full(char *queue) { return strlen(queue) + 1 == BUFFOR_SIZE; }
+bool queue_is_full(char *queue) {
+  return strlen(queue) + 1 == BUFFOR_SIZE ||
+         numberOfClientsInQueue == CHAIR_MAX_AMOUNT + HALL_PLACES_MAX_AMOUNT;
+}

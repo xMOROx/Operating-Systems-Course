@@ -17,7 +17,7 @@ static semaphore_t sem_queue;
 static semaphore_t sem_chairs;
 static semaphore_t sem_barbers;
 static semaphore_t sem_clients;
-
+static int numberOfClients = 0;
 void open_semaphores() {
   sem_queue = semaphore_open(SEMAPHORE_HALL_NAME);
   sem_chairs = semaphore_open(SEMAPHORE_CHAIRS_NAME);
@@ -60,6 +60,11 @@ int main(int argc, char **argv) {
            "id: %d\n",
            GREEN, RESET, getpid(), haircut);
     fflush(stdout);
+
+    numberOfClients++;
+    printf(
+        "\t%s[Barber]%s Barber with id: %d finished haircutting %d clients\n",
+        GREEN, RESET, getpid(), numberOfClients);
 
     semaphore_post(sem_chairs);
     semaphore_post(sem_queue);
